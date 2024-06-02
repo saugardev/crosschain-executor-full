@@ -89,7 +89,7 @@ const AcrossPlusComponent = () => {
         wallet.accounts[0].address, // depositor
         "0x87aeda878969075de0b4aab1e493bd2a22ee39dd", // recipient - MY OP contract
         "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // inputToken WETH ARB
-        "0x4200000000000000000000000000000000000006", // outputToken WETH OP
+        "0x0000000000000000000000000000000000000000", // outputToken WETH OP
         BigNumber.from(totalRelayFee), // inputAmount
         BigNumber.from(outputAmount), // outputAmount
         destinationChainId, // destinationChainId

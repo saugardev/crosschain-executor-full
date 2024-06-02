@@ -5,6 +5,7 @@ import styles from '../styles/Home.module.css'
 
 import { useConnectWallet } from '@web3-onboard/react'
 import { ethers } from 'ethers'
+import AcrossEventListener from '@/components/across-event-listener';
 
 export default function Home() {
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
@@ -30,6 +31,7 @@ export default function Home() {
       </button>
       <div className='mt-10'>
         {wallet === null ? null : <AcrossPlusComponent />}
+        <AcrossEventListener />
       </div>
     </main>
   )

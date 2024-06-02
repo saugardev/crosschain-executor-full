@@ -12,12 +12,12 @@ export interface SuggestedFeesRequest {
   /**
    * Address of the token to bridge on the origin chain. Must be used together with `outputToken`.
    */
-  inputToken?: string;
+  inputToken: string;
 
   /**
    * Address of the token to bridge on the destination chain. Must be used together with `inputToken`.
    */
-  outputToken?: string;
+  outputToken: string;
 
   /**
    * Chain ID where the specified token or inputToken exists.
@@ -60,29 +60,24 @@ export interface SuggestedFeesRequest {
  */
 export interface SuggestedFeesResponse {
   /**
-   * Fee object for Across v3.
+   * Total relay fee details.
    */
-  fees: {
-    /**
-     * Total relay fee details.
-     */
-    totalRelayFee: FeeDetail;
+  totalRelayFee: FeeDetail;
 
-    /**
-     * Relayer capital fee details.
-     */
-    relayerCapitalFee: FeeDetail;
+  /**
+   * Relayer capital fee details.
+   */
+  relayerCapitalFee: FeeDetail;
 
-    /**
-     * Relayer gas fee details.
-     */
-    relayerGasFee: FeeDetail;
+  /**
+   * Relayer gas fee details.
+   */
+  relayerGasFee: FeeDetail;
 
-    /**
-     * LP fee details.
-     */
-    lpFee: FeeDetail;
-  };
+  /**
+   * LP fee details.
+   */
+  lpFee: FeeDetail;
 
   /**
    * The quote timestamp that was used to compute the lpFeePct.

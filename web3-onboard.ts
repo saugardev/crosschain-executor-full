@@ -17,14 +17,7 @@ import tahoWalletModule from '@web3-onboard/taho'
 
 import { init } from '@web3-onboard/react'
 
-const injected = injectedModule({
-  custom: [
-    // include custom injected wallet modules here
-  ],
-  filter: {
-    // mapping of wallet labels to filter here
-  }
-})
+const injected = injectedModule();
 
 const walletLink = coinbaseModule()
 
@@ -96,7 +89,7 @@ export default init({
       id: 10,
       token: 'ETH',
       label: 'Optimism',
-      rpcUrl: `https://optimism.llamarpc.com`
+      rpcUrl: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
     },
     {
       id: 137,
@@ -120,7 +113,7 @@ export default init({
       id: 42161,
       token: 'ETH',
       label: 'Arbitrum One',
-      rpcUrl: 'https://rpc.ankr.com/arbitrum'
+      rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
     },
     {
       id: 59144,

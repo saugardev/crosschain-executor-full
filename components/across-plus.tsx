@@ -22,41 +22,6 @@ const AcrossPlusComponent = () => {
     const abi = [
       {
         "inputs": [
-          { "internalType": "address", "name": "_logic", "type": "address" },
-          { "internalType": "bytes", "name": "_data", "type": "bytes" }
-        ],
-        "stateMutability": "payable",
-        "type": "constructor"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          { "indexed": false, "internalType": "address", "name": "previousAdmin", "type": "address" },
-          { "indexed": false, "internalType": "address", "name": "newAdmin", "type": "address" }
-        ],
-        "name": "AdminChanged",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          { "indexed": true, "internalType": "address", "name": "beacon", "type": "address" }
-        ],
-        "name": "BeaconUpgraded",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          { "indexed": true, "internalType": "address", "name": "implementation", "type": "address" }
-        ],
-        "name": "Upgraded",
-        "type": "event"
-      },
-      { "stateMutability": "payable", "type": "fallback" },
-      { "stateMutability": "payable", "type": "receive" },
-      {
-        "inputs": [
           { "internalType": "address", "name": "depositor", "type": "address" },
           { "internalType": "address", "name": "recipient", "type": "address" },
           { "internalType": "address", "name": "inputToken", "type": "address" },
@@ -72,7 +37,7 @@ const AcrossPlusComponent = () => {
         ],
         "name": "depositV3",
         "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
       }
     ];
@@ -118,9 +83,6 @@ const AcrossPlusComponent = () => {
       const spokePoolContract = new ethers.Contract(spokePoolAddress, abi, signer);
       const tokenContract = new ethers.Contract("0x82af49447d8a07e3bd95bd0d56f35241523fbab1", tokenAbi, signer); // WETH ARB
 
-      // use token aproval
-      const approveTx = await tokenContract.approve(spokePoolAddress, inputAmount);
-      await approveTx.wait();
 
       // Creating the Deposit
       const tx = await spokePoolContract.depositV3(
@@ -138,6 +100,7 @@ const AcrossPlusComponent = () => {
         encodedMessage, // message
         { 
           gasLimit: ethers.utils.hexlify(1000000),
+          value: BigNumber.from(totalRelayFee)
         }
       );
 

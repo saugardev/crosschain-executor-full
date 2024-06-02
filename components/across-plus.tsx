@@ -1,110 +1,99 @@
-import React, { useState } from 'react';
+'use client'
+
+import { useState, useEffect } from 'react';
 import { BigNumber, ethers } from 'ethers';
 import { useConnectWallet } from '@web3-onboard/react';
 import { getSuggestedFees } from '@/lib/across-api';
-import { ChainId, SuggestedFeesRequest } from '@/types';
+import { ChainId } from '@/types';
+import { 
+  WethContracts, 
+  SpokePoolsContracts,
+  spokePoolAbi,
+  handlerContractChainId,
+  handlerContract
+} from '@/constants';
 
 const AcrossPlusComponent = () => {
   const [{ wallet }] = useConnectWallet();
   const [loading, setLoading] = useState(false);
+  const [originChainId, setOriginChainId] = useState<ChainId>();
+  const [inputToken, setInputToken] = useState<string>();
+  const [spokePoolAddress, setSpokePoolAddress] = useState<string>();
+
+  useEffect(() => {
+    if (wallet) {
+      const provider = new ethers.providers.Web3Provider(wallet.provider);
+      provider.getNetwork().then((network) => {
+        const chainId = network.chainId as ChainId;
+        setOriginChainId(chainId);
+        setInputToken(WethContracts[chainId]);
+        setSpokePoolAddress(SpokePoolsContracts[chainId]);
+        console.log(SpokePoolsContracts[chainId]);
+      });
+    }
+  }, [wallet]);
 
   const handleDeposit = async () => {
     if (wallet === null) {
-      alert("Please connect your wallet");
+      alert("Please connect your wallet.");
+      return;
+    }
+    if (originChainId === undefined || spokePoolAddress === undefined) {
+      alert("Unable to determine network.");
+      return;
+    }
+    if (inputToken === undefined) {
+      alert("Unable to determine input token.");
+      return;
+    }
+    if (spokePoolAddress === undefined) {
+      alert("Unable to determine spoke pool address.");
       return;
     }
     const provider = new ethers.providers.Web3Provider(wallet.provider);
     const signer = provider.getSigner();
 
-    const spokePoolAddress = "0xe35e9842fceaca96570b734083f4a58e8f7c5f2a";
-    const destinationChainId = 10;
-
-    const abi = [
-      {
-        "inputs": [
-          { "internalType": "address", "name": "depositor", "type": "address" },
-          { "internalType": "address", "name": "recipient", "type": "address" },
-          { "internalType": "address", "name": "inputToken", "type": "address" },
-          { "internalType": "address", "name": "outputToken", "type": "address" },
-          { "internalType": "uint256", "name": "inputAmount", "type": "uint256" },
-          { "internalType": "uint256", "name": "outputAmount", "type": "uint256" },
-          { "internalType": "uint256", "name": "destinationChainId", "type": "uint256" },
-          { "internalType": "address", "name": "exclusiveRelayer", "type": "address" },
-          { "internalType": "uint32", "name": "quoteTimestamp", "type": "uint32" },
-          { "internalType": "uint32", "name": "fillDeadline", "type": "uint32" },
-          { "internalType": "uint32", "name": "exclusivityDeadline", "type": "uint32" },
-          { "internalType": "bytes", "name": "message", "type": "bytes" }
-        ],
-        "name": "depositV3",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-      }
-    ];
-
-    const tokenAbi = [
-      {
-        "constant": false,
-        "inputs": [{ "name": "_spender", "type": "address" }, { "name": "_value", "type": "uint256" }],
-        "name": "approve",
-        "outputs": [{ "name": "success", "type": "bool" }],
-        "type": "function"
-      }
-    ];
 
     try {
       setLoading(true);
 
-      // Get the suggested fees from the Across API
-      const params = {
-        originChainId: 42161,
-        inputToken: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1', // WETH ARB
-        outputToken: '0x4200000000000000000000000000000000000006', // ETH OP
-        destinationChainId: 10,
+      // Getting a Quote
+      const feeData = await getSuggestedFees({
+        originChainId,
+        inputToken,
+        outputToken: WethContracts[10],
+        destinationChainId: handlerContractChainId,
         amount: 10000000000000,
-      };
-
-      const feeData = await getSuggestedFees(params as any) ;
+      });
       const totalRelayFee = feeData.totalRelayFee.total;
-
-      console.log(feeData, totalRelayFee);
-      console.log(totalRelayFee)
-
-      const inputAmount = BigNumber.from(totalRelayFee); // Zero USDC
-      const outputAmount = "0"; // Zero USDC
-      const fillDeadline = Math.floor(Date.now() / 1000) + 21600; // 6 hours from now
-
-      const timestamp = Math.floor(Date.now() / 1000); // Current timestamp
 
       // Crafting the message
       const abiCoder = new ethers.utils.AbiCoder();
       const encodedMessage = abiCoder.encode(["address"], [wallet.accounts[0].address]);
 
-      const spokePoolContract = new ethers.Contract(spokePoolAddress, abi, signer);
-      const tokenContract = new ethers.Contract("0x82af49447d8a07e3bd95bd0d56f35241523fbab1", tokenAbi, signer); // WETH ARB
-
-
       // Creating the Deposit
+      const spokePoolContract = new ethers.Contract(spokePoolAddress, spokePoolAbi, signer);
+
       const tx = await spokePoolContract.depositV3(
-        wallet.accounts[0].address, // depositor
-        "0x87aeda878969075de0b4aab1e493bd2a22ee39dd", // recipient - MY OP contract
-        "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // inputToken WETH ARB
-        "0x0000000000000000000000000000000000000000", // outputToken WETH OP
-        BigNumber.from(totalRelayFee), // inputAmount
-        BigNumber.from(outputAmount), // outputAmount
-        destinationChainId, // destinationChainId
-        ethers.constants.AddressZero, // exclusiveRelayer
-        timestamp, // quoteTimestamp
-        fillDeadline, // fillDeadline
-        0, // exclusivityDeadline
-        encodedMessage, // message
-        { 
+        wallet.accounts[0].address,                   // depositor
+        handlerContract,                              // recipient
+        inputToken,                                   // inputToken
+        "0x0000000000000000000000000000000000000000", // outputToken
+        BigNumber.from(totalRelayFee),                // inputAmount
+        BigNumber.from("0"),                          // outputAmount
+        handlerContractChainId,                       // destinationChainId
+        ethers.constants.AddressZero,                 // exclusiveRelayer
+        Math.floor(Date.now() / 1000),                // quoteTimestamp - Current timestamp
+        Math.floor(Date.now() / 1000) + 21600,        // fillDeadline - 6 hours from now
+        0,                                            // exclusivityDeadline
+        encodedMessage,                               // message
+        {
           gasLimit: ethers.utils.hexlify(1000000),
           value: BigNumber.from(totalRelayFee)
         }
       );
-
       await tx.wait();
+
       alert("Transaction successful!");
     } catch (error) {
       console.error(error);
@@ -117,7 +106,8 @@ const AcrossPlusComponent = () => {
   return (
     <div>
       <h2>Across+ Message</h2>
-      <button onClick={handleDeposit} disabled={loading}>
+      <p>Current chainId {originChainId}</p>
+      <button onClick={handleDeposit}>
         {loading ? 'Processing...' : 'Send Message'}
       </button>
     </div>

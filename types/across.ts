@@ -1,4 +1,4 @@
-export type ChainId = 1 | 10 | 137 | 324 | 8453 | 42161 | 59144 | 84532 | 421614 | 11155420 | 11155111;
+export type ChainId = 1 | 10 | 137 | 324 | 8453 | 42161 | 59144;
 
 /**
  * Interface for Suggested Fees Request

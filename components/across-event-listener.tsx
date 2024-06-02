@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
+import { SpokePoolsContracts } from '@/constants';
 
-const CONTRACT_ADDRESS = '0x6f26Bf09B1C792e3228e5467807a900A503c0281'; // OP SpookePool
+const CONTRACT_ADDRESS = SpokePoolsContracts[10] // OP SpookePool
 const ABI = [
   "event V3FundsDeposited(address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount, uint256 indexed destinationChainId, uint32 indexed depositId, uint32 quoteTimestamp, uint32 fillDeadline, uint32 exclusivityDeadline, address indexed depositor, address recipient, address exclusiveRelayer, bytes message)",
   "event FilledV3Relay(address inputToken, address outputToken, uint256 inputAmount, uint256 outputAmount, uint256 repaymentChainId, uint256 indexed originChainId, uint32 indexed depositId, uint32 fillDeadline, uint32 exclusivityDeadline, address exclusiveRelayer, address indexed relayer, address depositor, address recipient, bytes message, (address updatedRecipient, bytes updatedMessage, uint256 updatedOutputAmount, uint8 fillType) relayExecutionInfo)"

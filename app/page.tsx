@@ -31,7 +31,7 @@ export default function Home() {
       </button>
       <div className='mt-10'>
         {wallet === null ? null : <AcrossPlusComponent />}
-        <AcrossEventListener />
+        {/* <AcrossEventListener /> */}
       </div>
     </main>
   )

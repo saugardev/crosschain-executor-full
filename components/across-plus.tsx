@@ -107,7 +107,7 @@ const AcrossPlusComponent = () => {
     <div>
       <h2>Across+ Message</h2>
       <p>Current chainId {originChainId}</p>
-      <button onClick={handleDeposit}>
+      <button onClick={handleDeposit} className='rounded-md bg-gray-900 border-none text-lg font-semibold cursor-pointer text-white px-3.5 py-3 mt-10'>
         {loading ? 'Processing...' : 'Send Message'}
       </button>
     </div>

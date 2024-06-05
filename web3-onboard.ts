@@ -20,7 +20,7 @@ export default init({
       id: 10,
       token: 'ETH',
       label: 'Optimism',
-      rpcUrl: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
+      rpcUrl: `https://optimism.llamarpc.com	`
     },
     {
       id: 137,
@@ -44,7 +44,7 @@ export default init({
       id: 42161,
       token: 'ETH',
       label: 'Arbitrum One',
-      rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
+      rpcUrl: `https://arbitrum.llamarpc.com`
     },
     {
       id: 59144,

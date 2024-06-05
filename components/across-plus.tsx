@@ -63,7 +63,7 @@ const AcrossPlusComponent = () => {
         inputToken,
         outputToken: WethContracts[10],
         destinationChainId: handlerContractChainId,
-        amount: 10000000000000,
+        amount: 1000000000000000,
       });
       const totalRelayFee = feeData.totalRelayFee.total;
 
